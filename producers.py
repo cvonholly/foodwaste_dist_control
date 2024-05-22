@@ -1,15 +1,17 @@
 import numpy as np
 
 from data import get_P_facs
+from node import Node
 
 
-class P:
+class P(Node):
     """
     class representing prodcuers
     """
     def __init__(self, name, T, a, 
-                 flows_facs, flow_nodes,
-                 x0,
+                 flows_facs, 
+                 flow_nodes,
+                 x0: np.ndarray,
                  food_input) -> None:
         """
         inputs: 
@@ -28,12 +30,12 @@ class P:
         self.flow_nodes = flow_nodes  # output flow nodes (list of names)
         self.n_flows = len(flows_facs)
         self.x0 = x0   # x0 state
-        self.sz = len(x0)   # size of state
+        self.sz = x0.size   # size of state
         self.x = x0   # current state
         self.y = None   # output
         self.x_hist = []  # previous x's
         self.food_input = food_input
-        self.alphas, self.facs_sc, self.facs_fw = get_P_facs(flows_facs, T-1, a)
+        self.alphas, self.facs_fw = get_P_facs(flows_facs, T-1, a)
         if (self.alphas > 1).any():
             raise Exception("aborting, alpha value is greater 0")
         self.A = self.get_A()
@@ -58,16 +60,16 @@ class P:
     def get_C(self):
         C = np.vstack((
             self.flows_facs, 
-            self.facs_sc,
             self.facs_fw))
         zz = np.zeros((C.shape[0], 1))
         zz[-1] = 1  # at final time, everything goes to waste
         C = np.hstack((C, zz))
         return C
 
-    def sim_step(self, k):
+    def sim_step(self, k, flows):
         """
         k: time step k
+        flows: not used
 
         return: y (output consisting of)
             flows: np.array of output flows
@@ -76,5 +78,6 @@ class P:
         """
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
-        self.x = self.A @ self.x + self.B @ [self.food_input[k]]  # time step
+        self.x = self.A @ self.x + self.B @ self.food_input[k]  # time step
+        self.print_all()
         return self.y

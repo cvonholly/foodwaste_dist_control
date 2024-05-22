@@ -1,13 +1,19 @@
 import numpy as np
+import pandas as pd
 
 from data import get_SC_facs
+from node import Node
 
 
-class SC:
+class SC(Node):
     """
     class representing social and charity actors
     """
-    def __init__(self, name, T, a, in_flows_facs, out_flows_facs, x0) -> None:
+    def __init__(self, name, T, a, 
+                 in_flows_facs,
+                out_flows_facs, 
+                flow_nodes,
+                x0: np.ndarray) -> None:
         """
         inputs: 
             name
@@ -22,12 +28,13 @@ class SC:
         self.in_flows_facs = in_flows_facs  # input flow factors. generally 1 x flow
         self.n_u = in_flows_facs.shape[0]
         self.out_flows_facs = out_flows_facs   # output flow factors
+        self.flow_nodes = flow_nodes
         self.x0 = x0   # x0 state
-        self.sz = x0.shape[1]   # size of state
+        self.sz = x0.size   # size of state
         self.x = x0   # current state
         self.y = None   # output
         self.x_hist = []  # previous x's
-        self.alphas, self.facs_sc, self.facs_fw = get_SC_facs(out_flows_facs, T-1, a)
+        self.alphas, self.facs_fw = get_SC_facs(out_flows_facs, T-1, a)
         if (self.alphas > 1).any():
             raise Exception("aborting, alpha value is greater 0")
         self.A = self.get_A()
@@ -49,30 +56,33 @@ class SC:
             first row: input flow factors
             other rows: zeros
         """
-        print(self.in_flows_facs)
-        print(np.zeros((self.sz-1, self.n_u)))
-        return np.vstack((self.in_flows_facs, np.zeros((self.sz-1, self.n_u))))
+        return np.vstack((self.in_flows_facs, 
+                          np.zeros((self.sz-1, self.n_u))))
     
     def get_C(self):
         C = np.vstack((
-            self.out_flows_facs, 
-            self.facs_sc,
+            self.out_flows_facs,
             self.facs_fw))
         zz = np.zeros((C.shape[0], 1))
         zz[-1] = 1  # at final time, everything goes to waste
         C = np.hstack((C, zz))
         return C
 
-    def sim_step(self, food_input):
+    def sim_step(self, k: int, inputs: pd.DataFrame):
         """
-        food_input: float represnting total supply at this time step for this consumer
+        k: time step k
+        flows: n x n matrix of flows
 
         return: y (output consisting of)
             flows: np.array of output flows
             store: float represnting stored amount at time step t
             foodwaste: float represnting foodwaste at time step t
         """
+        inputs = [inputs[inputs[self.name].notna()][self.name].to_numpy()]
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
-        self.x = self.A @ self.x + self.B @ [food_input]  # time step
+        self.x = self.A @ self.x + self.B @ inputs  # time step
+        print("inputs: ")
+        print(inputs)
+        self.print_all()
         return self.y

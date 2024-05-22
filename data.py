@@ -48,16 +48,15 @@ def get_P_facs(flows, T, a):
         foodwaste factors
     """
     foodwaste = np.linspace(0, a, T)
-    self_con = np.flip(foodwaste)
-    if any(foodwaste+self_con > 1):
+    if any(foodwaste > 1):
         print("aborting, invalid factors for c class")
         return False, False
     flows_sum = sum(np.array(flows))  # sum of flows factors. have to be smaller 1
     if len(flows_sum)!=len(foodwaste):
         print("aborting, flows size's do not match")
     print(foodwaste)
-    alphas = flows_sum + foodwaste + self_con  # have to have samne 
-    return alphas, self_con, foodwaste
+    alphas = flows_sum + foodwaste
+    return alphas, foodwaste
 
 
 
@@ -75,11 +74,9 @@ def get_SC_facs(flows, T, a):
         foodwaste factors
     """
     foodwaste = np.linspace(0, a, T)
-    self_con = np.flip(foodwaste)
-    if any(foodwaste+self_con > 1):
+    if any(foodwaste > 1):
         print("aborting, invalid factors for c class")
         return False, False
     flows_sum = sum(flows)  # sum of flows factors. have to be smaller 1
-    alphas = flows_sum + foodwaste + self_con  # have to have same
-    print(alphas)
-    return alphas, self_con, foodwaste
+    alphas = flows_sum + foodwaste
+    return alphas, foodwaste

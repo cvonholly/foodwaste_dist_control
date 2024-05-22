@@ -29,8 +29,9 @@ class Simulation:
         self.SCs = SCs
         self.Cs = Cs
         self.nodes = Ps + SCs + Cs
+        self.names = [n.name for n in self.nodes]
         self.n_nodes = len(self.nodes)
-        self.flows = np.matrix([[np.NaN for i in range(self.n_nodes)] for i in range(self.n_nodes)])  # flows in graph
+        self.flows = pd.DataFrame(np.NAN, index=self.names, columns=self.names)  # flows in graph
     
     def update_flows(self, y: np.ndarray, N: Node):
         """
@@ -38,19 +39,18 @@ class Simulation:
         """
         y = y[:-1]  # exclude final row (foodwaste) to get all flows
 
-        N_idx = next(n for n in self.nodes if n.name==N.name)  # index for current node index
-        idxs = [n for n in self.nodes if n.name in N.flow_nodes]  # find matching nodes indexes
-
-        if len(idxs)!=y.shape[0]:  # check for errors
-            print(idxs)
+        if len(N.flow_nodes)!=y.shape[0]:  # check for errors
+            print(N.flow_nodes)
             print(y)
             raise Exception("idxs shape does not match y shape")
         
-        for i in idxs:
-            self.flows[N_idx, i] = y[i]   # update flow
+        # for i in range(len(N.flow_nodes)):
+        print("updating flows for ", N.name)
+        for i in range(len(N.flow_nodes)):
+            self.flows.loc[N.name, N.flow_nodes[i]] = y[i]   # update flow
 
 
-    def sim_step(self, pprint=True, plot=True):
+    def simulate(self, store=True):
         """
         simulate step in graph
 
@@ -65,19 +65,22 @@ class Simulation:
         for v in Cs:
             y = v.sim_step(flows)
         """
-        out = pd.DataFrame(None, index=[k for k in self.horizon], columns=[n.name for n in self.nodes])
+        out = pd.DataFrame(None, index=[k for k in range(self.horizon)], columns=[n.name for n in self.nodes])
 
         for k in range(self.horizon):
+            print("=================")
+            print("time step no. ", k)
+            print("=================")
             for p in self.Ps:  # 1. simulate producers
                 y = p.sim_step(k, self.flows)
                 self.update_flows(y, p)
-                out[p.name, k] = y
-            for sc in self.SCs:  # 1. simulate producers
+                out.loc[k, p.name] = y
+            for sc in self.SCs:  # 2. simulate SCs
                 y = sc.sim_step(k, self.flows)
                 self.update_flows(y, sc)
-                out[sc.name, k] = y
+                out.loc[k, sc.name] = y
             for c in self.Cs:
                 y = c.sim_step(k, self.flows)
-                out[c.name, k] = y
+                out.loc[k, c.name] = y
 
-        out.to_csv('out.csv')
+        if store: out.to_csv('out.csv')

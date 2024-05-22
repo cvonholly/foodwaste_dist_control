@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from data import get_facs
 from node import Node
@@ -49,20 +50,11 @@ class C(Node):
                           self.facs_fw))),
                           np.array([[0],[1]])))
 
-    def sim_step(self, flows):
-        if len(flows)!=self.n_flows:
-            raise Exception("aborting, alpha value is greater 0")
+    def sim_step(self, k, inputs: pd.DataFrame):
+        inputs = inputs[inputs[self.name].notna()][self.name]
+        
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
-        self.x = self.A @ self.x + self.B @ flows  # time step
+        self.x = self.A @ self.x + self.B @ inputs  # time step
         return self.y
         
-    def print(self):
-        print("x0:")
-        print(self.x0)
-        print("A: ")
-        print(self.A)
-        print("B: ")
-        print(self.B)
-        print("C: ")
-        print(self.C)
