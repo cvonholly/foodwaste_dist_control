@@ -27,6 +27,7 @@ class C(Node):
         self.gammas, self.facs_sc, self.facs_fw = get_facs(T-1, alpha)
         if (self.gammas > 1).any():
             raise Exception("aborting, alpha value is greater 0")
+        self.y_names = ['self consumption', 'food waste']
         self.A = self.get_A()
         self.B = self.get_B()
         self.C = self.get_C()
@@ -51,8 +52,7 @@ class C(Node):
                           np.array([[0],[1]])))
 
     def sim_step(self, k, inputs: pd.DataFrame):
-        inputs = inputs[inputs[self.name].notna()][self.name]
-        
+        inputs = np.array([inputs[inputs[self.name].notna()][self.name].to_numpy()]).T
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
         self.x = self.A @ self.x + self.B @ inputs  # time step

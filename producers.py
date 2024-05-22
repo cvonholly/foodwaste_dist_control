@@ -9,8 +9,8 @@ class P(Node):
     class representing prodcuers
     """
     def __init__(self, name, T, a, 
-                 flows_facs, 
-                 flow_nodes,
+                 flows_facs: np.ndarray, 
+                 flow_nodes: list,
                  x0: np.ndarray,
                  food_input) -> None:
         """
@@ -28,11 +28,11 @@ class P(Node):
         self.a = a
         self.flows_facs = flows_facs  # output flow factors
         self.flow_nodes = flow_nodes  # output flow nodes (list of names)
-        self.n_flows = len(flows_facs)
         self.x0 = x0   # x0 state
         self.sz = x0.size   # size of state
         self.x = x0   # current state
         self.y = None   # output
+        self.y_names = ['flow %s' % (i+1) for i in range(flows_facs.shape[0])] + ['foodwaste']
         self.x_hist = []  # previous x's
         self.food_input = food_input
         self.alphas, self.facs_fw = get_P_facs(flows_facs, T-1, a)

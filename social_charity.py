@@ -33,6 +33,7 @@ class SC(Node):
         self.sz = x0.size   # size of state
         self.x = x0   # current state
         self.y = None   # output
+        self.y_names = ['flow %s' % (i+1) for i in range(out_flows_facs.shape[0])] + ['foodwaste']
         self.x_hist = []  # previous x's
         self.alphas, self.facs_fw = get_SC_facs(out_flows_facs, T-1, a)
         if (self.alphas > 1).any():
@@ -82,7 +83,4 @@ class SC(Node):
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
         self.x = self.A @ self.x + self.B @ inputs  # time step
-        print("inputs: ")
-        print(inputs)
-        self.print_all()
         return self.y

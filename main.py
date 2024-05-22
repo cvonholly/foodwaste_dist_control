@@ -18,6 +18,7 @@ if __name__=="__main__":
         np.array([.1 * np.exp(-.1*x) for x in range(T-1)])   # f3
     ])  # flow factors
     p1_out_flows = np.vstack([flows_fact[0], flows_fact[1]])
+    sc1_out_flows = np.vstack([flows_fact[2]])
     x0 = np.zeros((T, 1))  # x0
     horizon = 10   # simulation horizon
     input_flows = [[[1]] if k<=3 else [[0]] for k in range(horizon)]  # food input for horizon
@@ -34,7 +35,7 @@ if __name__=="__main__":
            input_flows)
     SC1 = SC('SC1', T, alpha, 
              np.ones(1), 
-             flows_fact[2], 
+             sc1_out_flows, 
              ["C1"],
              x0)
     C1 = C('C1', T, alpha, 2, x0)
@@ -45,3 +46,4 @@ if __name__=="__main__":
 
     S = Simulation(horizon, Ps, SCs, Cs)
     S.simulate()
+

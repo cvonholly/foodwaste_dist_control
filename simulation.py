@@ -32,6 +32,7 @@ class Simulation:
         self.names = [n.name for n in self.nodes]
         self.n_nodes = len(self.nodes)
         self.flows = pd.DataFrame(np.NAN, index=self.names, columns=self.names)  # flows in graph
+        self.out = pd.DataFrame()
     
     def update_flows(self, y: np.ndarray, N: Node):
         """
@@ -65,7 +66,24 @@ class Simulation:
         for v in Cs:
             y = v.sim_step(flows)
         """
-        out = pd.DataFrame(None, index=[k for k in range(self.horizon)], columns=[n.name for n in self.nodes])
+        c1, c2 = [], []
+        for n in self.nodes:
+            c2 += n.y_names
+            c1 += [n.name for i in range(len(n.y_names))]
+        cols = pd.MultiIndex.from_arrays([c1, c2])
+        out = pd.DataFrame(None, 
+                           index=[k for k in range(self.horizon)], 
+                           columns=cols)
+        
+        xx = np.array([[1,2,3]]).T
+        xx = xx.flatten()
+        print(xx)
+        out.loc[0, 'P1'] = xx
+
+        print(out)
+
+        print(out.loc[0, 'P1'])
+        
 
         for k in range(self.horizon):
             print("=================")
@@ -74,13 +92,16 @@ class Simulation:
             for p in self.Ps:  # 1. simulate producers
                 y = p.sim_step(k, self.flows)
                 self.update_flows(y, p)
-                out.loc[k, p.name] = y
+                out.loc[k, p.name] = y.flatten()
             for sc in self.SCs:  # 2. simulate SCs
                 y = sc.sim_step(k, self.flows)
                 self.update_flows(y, sc)
-                out.loc[k, sc.name] = y
+                out.loc[k, sc.name] = y.flatten()
             for c in self.Cs:
                 y = c.sim_step(k, self.flows)
-                out.loc[k, c.name] = y
+                print(out.loc[k, c.name])
+                out.loc[k, c.name] = y.flatten()
 
-        if store: out.to_csv('out.csv')
+        self.out = out
+        if store: out.to_csv('results/out.csv')
+    

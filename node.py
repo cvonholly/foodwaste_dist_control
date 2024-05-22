@@ -10,6 +10,7 @@ class Node:
         self.x0 = np.array([])
         self.x_hist = []
         self.y = np.array([])  # output
+        self.y_names = []   # output names
         self.A = np.matrix([])
         self.B = np.matrix([])
         self.C = np.matrix([])
