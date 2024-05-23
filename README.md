@@ -10,7 +10,8 @@ pre:
 
 run:
 - `main.py` for running simulation
-- `visualize_results.py` for visualizing results
+- `vis_results.py` for visualizing results
+- `vis_network.py` for visualizing network
 
 license: MIT
 
