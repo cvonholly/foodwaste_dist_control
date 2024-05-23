@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from data import get_facs
-from node import Node
+from data.data import get_facs
+from nodes.node import Node
 
 
 class C(Node):
@@ -53,6 +53,8 @@ class C(Node):
 
     def sim_step(self, k, inputs: pd.DataFrame):
         inputs = np.array([inputs[inputs[self.name].notna()][self.name].to_numpy()]).T
+        print(inputs)
+        self.print_all()
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
         self.x = self.A @ self.x + self.B @ inputs  # time step
