@@ -13,6 +13,12 @@ run:
 - `vis_results.py` for visualizing results
 - `vis_network.py` for visualizing network
 
+## To dev:
+- serialize adding new nodes
+- normalize certain matrices
+    - P flows matrix
+    
+
 license: MIT
 
 author: Carl von Holly-Ponientzietz

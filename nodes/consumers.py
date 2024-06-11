@@ -53,8 +53,8 @@ class C(Node):
 
     def sim_step(self, k, inputs: pd.DataFrame):
         inputs = np.array([inputs[inputs[self.name].notna()][self.name].to_numpy()]).T
-        print(inputs)
-        self.print_all()
+        # print(inputs)
+        # self.print_all()
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
         self.x = self.A @ self.x + self.B @ inputs  # time step
