@@ -12,6 +12,12 @@ run:
 - `main.py` for running simulation
 - `visualize_results.py` for visualizing results
 
+## To dev:
+- serialize adding new nodes
+- normalize certain matrices
+    - P flows matrix
+    
+
 license: MIT
 
 author: Carl von Holly-Ponientzietz

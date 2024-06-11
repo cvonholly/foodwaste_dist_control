@@ -82,5 +82,5 @@ class P(Node):
         self.x_hist.append(self.x)
         self.y = self.C @ self.x   # get output
         self.x = self.A @ self.x + self.B @ self.food_input[k]  # time step
-        self.print_all()
+        # self.print_all()
         return self.y

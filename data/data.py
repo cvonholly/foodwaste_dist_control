@@ -12,8 +12,8 @@ def get_facs(T, a):
         self consumption factors
         foodwaste factors
     """
-    foodwaste = np.linspace(0, a, T)
-    self_con = np.flip(foodwaste)
+    foodwaste = np.zeros(T) # np.linspace(0, a, T)
+    self_con = np.flip(np.linspace(0, a, T))
     if any(foodwaste+self_con > 1):
         print("aborting, invalid factors for c class")
         return False, False
@@ -47,7 +47,7 @@ def get_P_facs(flows, T, a):
         self consumption factors
         foodwaste factors
     """
-    foodwaste = np.linspace(0, a, T)
+    foodwaste = np.zeros(T)   # simple: no foodwaste until final time. old:np.linspace(0, a, T)
     if any(foodwaste > 1):
         print("aborting, invalid factors for c class")
         return False, False
@@ -73,7 +73,7 @@ def get_SC_facs(flows, T, a):
         self consumption factors
         foodwaste factors
     """
-    foodwaste = np.linspace(0, a, T)
+    foodwaste = np.zeros(T) # np.linspace(0, a, T)
     if any(foodwaste > 1):
         print("aborting, invalid factors for c class")
         return False, False

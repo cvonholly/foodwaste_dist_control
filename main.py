@@ -11,18 +11,19 @@ if __name__=="__main__":
     parameters
     """
     T = 5
-    alpha = .2
+    alpha = .7
+    beta = .3
     flows_fact = np.vstack([
-        np.array([.1 * np.exp(-.1*x) for x in range(T-1)]),  # f1
-        np.array([.1 * np.exp(-.1*x) for x in range(T-1)]),   # f2
-        np.array([.1 * np.exp(-.1*x) for x in range(T-1)])   # f3
+        np.array([beta * np.exp(-.1*x) for x in range(T-1)]),  # f1
+        np.array([beta * np.exp(-.1*x) for x in range(T-1)]),   # f2
+        np.array([beta * np.exp(-.1*x) for x in range(T-1)])   # f3
     ])  # flow factors
     p1_out_flows = np.vstack([flows_fact[0], 
                               flows_fact[0],
                               flows_fact[1]])
     sc1_out_flows = np.vstack([flows_fact[2]])
     x0 = np.zeros((T, 1))  # x0
-    horizon = 10   # simulation horizon
+    horizon = 20   # simulation horizon
     input_flows = [[[1]] if k<=3 else [[0]] for k in range(horizon)]  # food input for horizon
     # input_flows = np.array(input_flows).T
 
@@ -32,7 +33,9 @@ if __name__=="__main__":
     """
     P1 = P('P1', T, alpha, 
            p1_out_flows, 
-           ["C1", "C2", "SC1"],  # output flow nodes
+           ["C1", 
+            "C2", 
+            "SC1"],  # output flow nodes
            x0, 
            input_flows)
     SC1 = SC('SC1', T, alpha, 
