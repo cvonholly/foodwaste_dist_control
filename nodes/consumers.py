@@ -29,7 +29,7 @@ class C(Node):
             raise Exception("aborting, alpha value is greater 0")
         self.y_names = ['self consumption', 'food waste']
         self.A = self.get_A()
-        self.B = self.get_B()
+        self.B = None  # is computed at first time step (due to wait for input)
         self.C = self.get_C()
     
     def get_A(self):
@@ -41,10 +41,15 @@ class C(Node):
         y = np.vstack((np.zeros(self.T), y))
         return y
     
-    def get_B(self):
-        ones = np.ones(self.n_flows)
-        zeros = np.zeros((self.T-1, self.n_flows))
-        return np.vstack((ones,zeros))
+    def get_B(self, inputs: np.array):
+        """
+        inputs: input flows
+            rows: nodes (n)
+            cols: time step inputs (T)
+        """
+        self.n_u = inputs.shape  # = (n, T) = (#nodes, #states)
+        self.B = np.hstack([np.eye(self.n_u[1]) for i in range(self.n_u[0])])  # hor. stacked identity matrices
+        return self.B
     
     def get_C(self):
         return np.hstack(((np.vstack((self.facs_sc, 
@@ -52,11 +57,13 @@ class C(Node):
                           np.array([[0],[1]])))
 
     def sim_step(self, k, inputs: pd.DataFrame):
-        inputs = np.array([inputs[inputs[self.name].notna()][self.name].to_numpy()]).T
-        # print(inputs)
-        # self.print_all()
+        # inputs = np.array([inputs[inputs[self.name].notna()][self.name].to_numpy()]).T
+        inputs = inputs.fillna(0).to_numpy()  # inputs to numpy
+        if self.B is None: self.B = self.get_B(inputs)  # computes B at first time step
+        inputs = np.resize(inputs, (self.B.shape[1], 1))  # resize for matrix multiplication
         self.x_hist.append(self.x)
-        self.y = self.C @ self.x   # get output
         self.x = self.A @ self.x + self.B @ inputs  # time step
+        self.y = self.C @ self.x   # get output
+        self.print_all()
         return self.y
         

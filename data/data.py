@@ -52,9 +52,6 @@ def get_P_facs(flows, T, a):
         print("aborting, invalid factors for c class")
         return False, False
     flows_sum = sum(np.array(flows))  # sum of flows factors. have to be smaller 1
-    if len(flows_sum)!=len(foodwaste):
-        print("aborting, flows size's do not match")
-    print(foodwaste)
     alphas = flows_sum + foodwaste
     return alphas, foodwaste
 

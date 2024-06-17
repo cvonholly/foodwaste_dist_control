@@ -9,7 +9,7 @@ class P(Node):
     class representing prodcuers
     """
     def __init__(self, name, T, a, 
-                 flows_facs: np.ndarray, 
+                 flow_matrix: np.ndarray, 
                  flow_nodes: list,
                  x0: np.ndarray,
                  food_input) -> None:
@@ -18,7 +18,7 @@ class P(Node):
             name
             T (numnber timesteps)
             a (factor) for factors 
-            flows factors: matrix of output flow factors (array of size k x T)
+            flow_matrix: matrix of output flow factors (array of size (n*T) x T)
             flow_nodes: nd.array of output nodes length k
             x0: initial state (array of size T)
             food_input: (list) food_input at time step k
@@ -26,16 +26,17 @@ class P(Node):
         self.name = name
         self.T = T
         self.a = a
-        self.flows_facs = flows_facs  # output flow factors
+        self.flow_matrix = flow_matrix   # output flow matrix
+        self.flows_facs = np.diag(flow_matrix[:-1])  # output flow factors
         self.flow_nodes = flow_nodes  # output flow nodes (list of names)
         self.x0 = x0   # x0 state
         self.sz = x0.size   # size of state
         self.x = x0   # current state
         self.y = None   # output
-        self.y_names = ['flow %s' % (i+1) for i in range(flows_facs.shape[0])] + ['foodwaste', 'input flow']
+        self.y_names = ['flow %s' % (i) for i in flow_nodes] + ['foodwaste', 'input flow']
         self.x_hist = []  # previous x's
         self.food_input = food_input
-        self.alphas, self.facs_fw = get_P_facs(flows_facs, T-1, a)
+        self.alphas, self.facs_fw = get_P_facs(self.flows_facs, T-1, a)
         if (self.alphas > 1).any():
             raise Exception("aborting, alpha value is greater 0")
         self.A = self.get_A()
@@ -58,15 +59,13 @@ class P(Node):
         return np.vstack((1, np.zeros((self.sz-1,1))))
     
     def get_C(self):
+        C = self.flow_matrix
+        final_rows = np.zeros((2, C.shape[1]))
+        final_rows[0, -1] = 1  # at final time step, everything hoes to waste
+        final_rows[1, 0] = 1  # put food input also to output 
         C = np.vstack((
-            self.flows_facs, 
-            self.facs_fw))
-        zz = np.zeros((C.shape[0], 1))
-        zz[-1] = 1  # at final time, everything goes to waste
-        C = np.hstack((C, zz))
-        zz = np.zeros((1, C.shape[1]))
-        zz[0][0] = 1  # add final output state
-        C = np.vstack((C, zz))# add input flow to output
+            C,
+            final_rows))
         return C
 
     def sim_step(self, k, flows):
@@ -80,7 +79,7 @@ class P(Node):
             foodwaste: float represnting foodwaste at time step t
         """
         self.x_hist.append(self.x)
-        self.y = self.C @ self.x   # get output
         self.x = self.A @ self.x + self.B @ self.food_input[k]  # time step
-        # self.print_all()
+        self.y = self.C @ self.x   # get output
+        self.print_all()  # for debugging
         return self.y

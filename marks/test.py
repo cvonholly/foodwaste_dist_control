@@ -1,6 +1,7 @@
 import numpy as np
 
-from flow_factors import flow_matrix_P_to_C, flow_matrix_P_to_SC, flow_matrix_SC_to_C, flow_matrix_C_consumption
+from flow_factors import *
+
 
 T = 5 # number of states 
 food_waste = 0.08 # food waste percentage/ratio at producer level
@@ -29,3 +30,4 @@ print(matrix_SC_to_C)
 matrix_C_consumption = flow_matrix_C_consumption(T, alpha_first_day, alpha_last_day)
 print("matrix_C_consumption")
 print(matrix_C_consumption)
+
