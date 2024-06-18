@@ -14,10 +14,12 @@ run:
 - `vis_network.py` for visualizing network
 
 ## To dev:
+- fix marks matrices
 - serialize adding new nodes
 - normalize certain matrices
     - P flows matrix
-    
+
+- flows have to be adapted
 
 license: MIT
 
