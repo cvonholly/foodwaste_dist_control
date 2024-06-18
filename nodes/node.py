@@ -11,11 +11,17 @@ class Node:
         self.x_hist = []
         self.y = np.array([])  # output
         self.y_names = []   # output names
+        self.alphas = np.ndarray   # alphas for A matrix
         self.A = np.matrix([])
         self.B = np.matrix([])
         self.C = np.matrix([])
         self.D = np.matrix([])
         self.flow_nodes = list[str]   # output flow nodes
+
+    def get_A(self):
+        A = np.eye(self.T) - np.eye(self.T) * self.alphas
+        A = np.roll(A, 1, axis=0)
+        return A
     
     def sim_step(self, t: int, input: np.matrix):
         """

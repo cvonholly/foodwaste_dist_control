@@ -70,21 +70,13 @@ class Simulation:
         for i in range(len(N.flow_nodes)):  # iterate over output nodes by index
             # for x in range(self.state_size):  # iterate over time / state
             y_i = y[i*self.state_size : (i+1)*self.state_size].T
-            print("y_i: ----")
-            print(y_i)
-            print("y_i.sum(): ----")
-            print(y_i.sum())
-            print("self.flows_t.loc[%s, %s]: ----" % (N.name, N.flow_nodes[i]))
-            print(self.flows_t.loc[N.name, N.flow_nodes[i]])
             self.flows_t.loc[N.name, N.flow_nodes[i]] = y_i  # update time dependent flow
             self.flows.loc[N.name, N.flow_nodes[i]] = y_i.sum()   # update final flow
             out.append(y_i.sum())
         # out = self.flows.loc[N.name, :].values + out_last
         out = out + out_last
-        print("out: ---")
+        print("out for %s at k=%s:"  % (N.name, k))
         print(out)
-        print('self.out.loc[k, N.name]: ---')
-        print(self.out.loc[k, N.name])
         self.out.loc[k, N.name] = out
 
     def get_out_df(self) -> pd.DataFrame:

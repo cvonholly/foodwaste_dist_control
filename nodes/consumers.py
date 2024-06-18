@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from data.data import get_facs
 from nodes.node import Node
 
 
@@ -9,7 +8,11 @@ class C(Node):
     """
     class representing consumers
     """
-    def __init__(self, name, T, alpha, n_flows, x0) -> None:
+    def __init__(self, name, T, 
+                 sc_matrix: np.ndarray,
+                 fw_matrix: np.ndarray,
+                 n_flows, 
+                 x0) -> None:
         """
         inputs: 
             T (numnber timesteps)
@@ -18,28 +21,31 @@ class C(Node):
         """
         self.name = name
         self.T = T
-        self.alpha = alpha
+        self.sc_matrix = sc_matrix
+        self.fw_matrix = fw_matrix
         self.n_flows = n_flows
         self.x0 = x0   # x0 state
         self.x = x0   # current state
         self.y = None   # output
         self.x_hist = []  # previous x's
-        self.gammas, self.facs_sc, self.facs_fw = get_facs(T-1, alpha)
-        if (self.gammas > 1).any():
-            raise Exception("aborting, alpha value is greater 0")
-        self.y_names = ['self consumption', 'food waste']
+        self.y_names = ['self consumption', 'food waste']  # output names
+        self.alphas = np.ndarray  # initialize alphas
+        self.C = self.get_C()  # get output matrix
+        if (self.alphas > 1).any():
+            raise Exception("aborting, alpha value is greater 0")        
         self.A = self.get_A()
         self.B = None  # is computed at first time step (due to wait for input)
-        self.C = self.get_C()
+        
     
-    def get_A(self):
-        """
-        get standard system matrix from factors
-        """
-        t = self.T-1
-        y = np.hstack((np.eye(t) - np.eye(t) * self.gammas, np.zeros([1,t]).T))
-        y = np.vstack((np.zeros(self.T), y))
-        return y
+    # def get_A(self):
+    #     """
+    #     get standard system matrix from factors
+    #     """
+    #     # t = self.T-1
+    #     # A = np.hstack((np.eye(t) - np.eye(t) * self.alphas, np.zeros([1,t]).T))
+    #     # A = np.vstack((np.zeros(self.T), A))
+    #     # return A
+    #     return np.eye(self.T) - np.eye(self.T) * self.alphas
     
     def get_B(self, inputs: np.array):
         """
@@ -52,12 +58,11 @@ class C(Node):
         return self.B
     
     def get_C(self):
-        return np.hstack(((np.vstack((self.facs_sc, 
-                          self.facs_fw))),
-                          np.array([[0],[1]])))
+        C = np.vstack((self.sc_matrix, self.fw_matrix))
+        self.alphas = C.sum(axis=0)  # alpha values for A matrix
+        return C
 
     def sim_step(self, k, inputs: pd.DataFrame):
-        # inputs = np.array([inputs[inputs[self.name].notna()][self.name].to_numpy()]).T
         inputs = inputs.fillna(0).to_numpy()  # inputs to numpy
         if self.B is None: self.B = self.get_B(inputs)  # computes B at first time step
         inputs = np.resize(inputs, (self.B.shape[1], 1))  # resize for matrix multiplication

@@ -42,10 +42,12 @@ def flow_matrix_SC_to_C(T, T_start, T_end, alpha_start, alpha_end):
 def flow_matrix_C_consumption(T, alpha_first_day, alpha_last_day):
         
         alpha = (T-1)/(np.log(alpha_last_day-alpha_first_day+1))
-        flow_matrix = np.zeros((T,T))
+        flow_matrix = np.zeros((1,T))
       
         for i in range(T):
-            flow_matrix[i,i] = alpha_first_day + (np.exp(i/alpha)-1)
+            flow_matrix[0, i] = alpha_first_day + (np.exp(i/alpha)-1)
+        
+        flow_matrix[0, -1] = 0  # at final time step this has to be zero
 
         return flow_matrix
 
