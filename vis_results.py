@@ -17,6 +17,7 @@ app.layout = html.Div([
     ),
     dcc.Graph(id="graph"),
     dcc.Graph(id="graph_2"),
+    dcc.Graph(id='graph_sc_vs_sc'),
 ])
 
 
@@ -54,6 +55,32 @@ def update_figure(i):
     fig = px.bar(df_new, x='type', y='sum', barmode='stack',
                  labels='names', text='names', color='node',
                  category_orders={'type': ['inputs', 'flows', 'outputs']})
+    fig.update_xaxes(type='category')
+    return fig
+
+@app.callback(
+    Output("graph_sc_vs_sc", "figure"), 
+    Input("dropdown", "value"))
+def update_figure(i):
+    dff = df.copy()
+    df_new = pd.DataFrame(0, index=dff.columns, columns=['sum', 'type'])
+    df_new['sum'] = dff.sum(axis=0)
+    for c in dff.columns:
+        if c[1]=='input flow':
+            df_new.drop(c, axis=0, inplace=True)
+        elif 'foodwaste'==c[1] or 'food waste'==c[1]:
+            df_new.loc[c, 'type'] = 'foodwaste'
+        elif 'self consumption' in c[1]:
+            df_new.loc[c, 'type'] = 'self consumption'
+        elif c[1].startswith('flow'):
+            df_new.drop(c, axis=0, inplace=True)
+    df_new['node'] = [c[0] for c in df_new.index]
+    df_new.index = [' '.join(i).strip() for i in df_new.index]  # flatten multiindex
+    df_new['names'] = df_new.index
+    print(df_new)
+    fig = px.bar(df_new, x='type', y='sum', barmode='stack',
+                 labels='names', text='names', color='node',
+                 category_orders={'type': ['foodwaste', 'self consumption']})
     fig.update_xaxes(type='category')
     return fig
 
