@@ -15,7 +15,7 @@ if __name__=="__main__":
     """
     horizon = 10   # simulation horizon: has to be sufficiently longer then T for simulation to be correct !
     T = 5  # food waste time horizon
-    n_ps = 1   # set number producers
+    n_ps = 2   # set number producers
     n_cs = 4  # set number consumers
     n_scs = 3   # set number social-charities
     Ps_names = [f'P{i}' for i in range(n_ps)] 

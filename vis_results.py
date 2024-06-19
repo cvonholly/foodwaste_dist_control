@@ -37,8 +37,12 @@ def update_figure(input_value):
 @app.callback(
     Output("graph_2", "figure"), 
     Input("dropdown", "value"))
-def update_figure(i):
+def update_figure(input_value):
     dff = df.copy()
+    if input_value=='all':
+        dff = dff.copy()
+    else:
+        dff = dff[[input_value]]
     df_new = pd.DataFrame(0, index=dff.columns, columns=['sum', 'type'])
     df_new['sum'] = dff.sum(axis=0)
     for c in dff.columns:
@@ -61,8 +65,13 @@ def update_figure(i):
 @app.callback(
     Output("graph_sc_vs_sc", "figure"), 
     Input("dropdown", "value"))
-def update_figure(i):
+def update_figure(input_value):
     dff = df.copy()
+    if input_value=='all':
+        dff = dff.copy()
+        # dff.columns = [' '.join(col).strip() for col in df.columns.values]  # flatten multiindex
+    else:
+        dff = dff[[input_value]]
     df_new = pd.DataFrame(0, index=dff.columns, columns=['sum', 'type'])
     df_new['sum'] = dff.sum(axis=0)
     for c in dff.columns:
