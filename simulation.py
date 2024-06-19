@@ -58,14 +58,8 @@ class Simulation:
             y = y[:-1]   # exclude final row
         else:
             raise Exception('invalid Node type')
-
-        # todo: check has to be adapted
-        # if len(N.flow_nodes)!=y.shape[0]:  # check for errors
-        #     print(N.flow_nodes)
-        #     print(y)
-        #     raise Exception("idxs shape does not match y shape")
         
-        print("updating flows for ", N.name)
+        # print("updating flows for ", N.name)
         out = []
         for i in range(len(N.flow_nodes)):  # iterate over output nodes by index
             # for x in range(self.state_size):  # iterate over time / state
@@ -75,8 +69,8 @@ class Simulation:
             out.append(y_i.sum())
         # out = self.flows.loc[N.name, :].values + out_last
         out = out + out_last
-        print("out for %s at k=%s:"  % (N.name, k))
-        print(out)
+        # print("out for %s at k=%s:"  % (N.name, k))
+        # print(out)
         self.out.loc[k, N.name] = out
 
     def get_out_df(self) -> pd.DataFrame:
