@@ -12,7 +12,7 @@ from marks.foodwaste_matrices import *
 
 if __name__=="__main__":
     # load parameters
-    params = load_params("test")
+    params = load_params("SHFW")
     T = params["T"]  # food waste time horizon
     n_ps = params["n_ps"] # set number producers
     n_cs = params["n_cs"]  # set number consumers

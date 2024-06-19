@@ -3,6 +3,8 @@ import plotly.express as px
 import pandas as pd
 
 df = pd.read_csv('results/out.csv', index_col=0, header=[0,1])
+df_raw = df
+
 
 # new
 
@@ -55,7 +57,6 @@ def update_figure(input_value):
     df_new['node'] = [c[0] for c in df_new.index]
     df_new.index = [' '.join(i).strip() for i in df_new.index]  # flatten multiindex
     df_new['names'] = df_new.index
-    print(df_new)
     fig = px.bar(df_new, x='type', y='sum', barmode='stack',
                  labels='names', text='names', color='node',
                  category_orders={'type': ['inputs', 'flows', 'outputs']})
@@ -66,12 +67,11 @@ def update_figure(input_value):
     Output("graph_sc_vs_sc", "figure"), 
     Input("dropdown", "value"))
 def update_figure(input_value):
-    dff = df.copy()
+    dff = pd.DataFrame()
     if input_value=='all':
-        dff = dff.copy()
-        # dff.columns = [' '.join(col).strip() for col in df.columns.values]  # flatten multiindex
+        dff = df_raw.copy()
     else:
-        dff = dff[[input_value]]
+        dff = df_raw[[input_value]]
     df_new = pd.DataFrame(0, index=dff.columns, columns=['sum', 'type'])
     df_new['sum'] = dff.sum(axis=0)
     for c in dff.columns:
@@ -86,7 +86,6 @@ def update_figure(input_value):
     df_new['node'] = [c[0] for c in df_new.index]
     df_new.index = [' '.join(i).strip() for i in df_new.index]  # flatten multiindex
     df_new['names'] = df_new.index
-    print(df_new)
     fig = px.bar(df_new, x='type', y='sum', barmode='stack',
                  labels='names', text='names', color='node',
                  category_orders={'type': ['foodwaste', 'self consumption']})
