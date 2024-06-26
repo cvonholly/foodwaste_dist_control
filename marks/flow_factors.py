@@ -18,8 +18,6 @@ def flow_matrix_P_to_SC(T, T_start, T_end, alpha_start, alpha_end):
         alpha = (alpha_end-alpha_start)/(T_end-T_start)
         flow_matrix = np.zeros((T,T))
         start_index = T_start-1
-        stop_index = T_end-1
-        step = 1
         for i in range((T_end-T_start)+1):
             flow_matrix[(i+start_index),(i+start_index)] = alpha_start + (i*alpha)
 
