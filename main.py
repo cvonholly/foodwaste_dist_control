@@ -12,7 +12,8 @@ from marks.foodwaste_matrices import *
 
 if __name__=="__main__":
     # load parameters
-    params = load_params("SCS")
+    name = "EC_MPC"
+    params = load_params(name)
     print(params)
     T = params["T"]  # food waste time horizon
     n_ps = params["n_ps"] # set number producers
@@ -54,7 +55,11 @@ if __name__=="__main__":
            p_fw_matrix,
            Cs_names + SCs_names,  # output flow nodes
            params["x0"], 
-           params["input_flows"]))    
+           params["input_flows"],
+           ec_mpc=params["ec_mpc"],
+           q=p_fw_matrix.T,
+           mpc_h=params["mpc_h"]
+           ))    
     SCs = []
     for sc in SCs_names:
         SCs.append(SC(sc, T,
@@ -72,7 +77,8 @@ if __name__=="__main__":
     
     
     
-    S = Simulation(params["horizon"], 
+    S = Simulation(name,
+                    params["horizon"], 
                    T,
                    Ps, SCs, Cs)
     S.simulate()

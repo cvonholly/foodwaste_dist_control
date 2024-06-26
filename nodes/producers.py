@@ -1,6 +1,56 @@
 import numpy as np
+import cvxpy as cp
 
 from nodes.node import Node
+
+
+def mpc_P(A: np.ndarray, 
+        B: np.ndarray,  
+        q: np.ndarray, 
+        x0: np.ndarray, 
+        food_input: float,
+        N: int) -> np.ndarray:
+    """
+    Model Predictive Control for producer
+
+    :param A: State transition matrix
+    :param B: Control input matrix
+    :param q: cost vector
+    :param x0: Initial state
+    :param N: Prediction horizon
+    :return: Optimal control input sequence
+    """
+    n = A.shape[1]  # Number of states
+    m = B.shape[1]  # Number of inputs
+
+    # Define variables
+    x = cp.Variable((n, N+1))
+    u = cp.Variable((m, N))
+
+    # Define the cost function & constraints
+    cost = 0
+    constraints = []
+
+    for k in range(N):
+        cost += q.T @ x[:, k]
+        constraints += [x[:, k+1] == A @ x[:, k] + B @ u[:, k]]
+
+    cost += q.T @ x[:, N] # terminal cost
+
+    constraints += [x[:, 0] == x0.flatten()]  # Initial condition
+
+    constraints += [cp.sum(u, axis=0) == food_input]  # food input condition
+
+    # Solve the optimization problem
+    problem = cp.Problem(cp.Minimize(cost), constraints)
+    problem.solve()
+
+    if problem.status == cp.OPTIMAL or problem.status == cp.OPTIMAL_INACCURATE:
+        return np.array([u[:, 0].value])  # adapting only for correct numpy format
+    else:
+        print("status:", problem.status)
+        print("optimal value", problem.value)
+        raise ValueError("MPC optimization problem did not solve!")
 
 
 class P(Node):
@@ -12,7 +62,10 @@ class P(Node):
                  fw_matrix: np.ndarray,
                  flow_nodes: list,
                  x0: np.ndarray,
-                 food_input) -> None:
+                 food_input,
+                 ec_mpc=False,
+                 q=None,
+                 mpc_h=None) -> None:
         """
         inputs: 
             name
@@ -22,6 +75,7 @@ class P(Node):
             flow_nodes: nd.array of output nodes length k
             x0: initial state (array of size T)
             food_input: (list) food_input at time step k
+            ec_mpc: (bool) weather to determin input via MPC
         """
         self.name = name
         self.T = T
@@ -41,16 +95,11 @@ class P(Node):
             raise Exception("aborting, alpha value is greater 0")
         self.A = self.get_A()
         self.B = self.get_B()
-
-    
-    # def get_A(self):
-    #     """
-    #     get standard system matrix from factors
-    #     """
-    #     # t = self.T-1
-    #     # y = np.hstack((np.eye(t) - np.eye(t) * self.alphas, np.zeros([1,t]).T))
-    #     # y = np.vstack((np.zeros(self.T), y))
-    #     return np.eye(self.T) - np.eye(self.T) * self.alphas
+        # MPC inputs
+        self.ec_mpc = ec_mpc
+        self.total_food_input = np.sum(self.food_input)
+        self.q = q
+        self.mpc_h = mpc_h
     
     def get_B(self):
         """
@@ -78,8 +127,15 @@ class P(Node):
             foodwaste: foodwaste at time step t
             input: input at t
         """
+        inp = mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h) if self.ec_mpc \
+                else self.food_input[k]  # c
+        if self.ec_mpc:
+            self.total_food_input = np.round(self.total_food_input - inp, 8)  # have to adapt to input
+            print("with local economic mpc the input was found to be: ", inp)
+            print("without: ", self.food_input[k])
         self.x_hist.append(self.x)
-        self.x = self.A @ self.x + self.B @ self.food_input[k]  # time step
+        self.x = self.A @ self.x + self.B @ inp  # time step
         self.y = self.C @ self.x   # get output
         # self.print_all()  # for debugging
         return self.y
+            

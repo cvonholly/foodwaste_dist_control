@@ -2,11 +2,11 @@ from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
 
-df = pd.read_csv('results/out.csv', index_col=0, header=[0,1])
+name = "EC_MPC"
+
+df = pd.read_csv(f'results/{name}_out.csv', index_col=0, header=[0,1])
 df_raw = df
 
-
-# new
 
 app = Dash(__name__)
 
