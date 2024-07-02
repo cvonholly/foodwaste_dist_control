@@ -2,7 +2,7 @@ import numpy as np
 import cvxpy as cp
 
 from nodes.node import Node
-import control.mpc
+from nodes.control.mpc import mpc_P
 
 
 class P(Node):
@@ -79,7 +79,7 @@ class P(Node):
             foodwaste: foodwaste at time step t
             input: input at t
         """
-        inp = control.mpc.mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h) if self.ec_mpc \
+        inp = mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h) if self.ec_mpc \
                 else self.food_input[k]  # c
         if self.ec_mpc:
             self.total_food_input = np.round(self.total_food_input - inp, 8)  # have to adapt to input
