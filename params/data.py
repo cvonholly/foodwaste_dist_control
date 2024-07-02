@@ -27,7 +27,7 @@ params = {
     },
     # base case model
     "SCS": {
-        "horizon": 13,   # simulation horizon: has to be sufficiently longer then T for simulation to be correct !
+        "horizon": 10,   # simulation horizon: has to be sufficiently longer then T for simulation to be correct !
         "T" : 10,  # food waste time horizon
         "n_ps" : 1,   # set number producers
         "n_cs" : 10,  # set number consumers
@@ -50,7 +50,7 @@ params = {
     },
     # base case model with MPC
     "EC_MPC": {
-        "horizon": 13,   # simulation horizon: has to be sufficiently longer then T for simulation to be correct !
+        "horizon": 10,   # simulation horizon: has to be sufficiently longer then T for simulation to be correct !
         "T" : 10,  # food waste time horizon
         "n_ps" : 1,   # set number producers
         "n_cs" : 10,  # set number consumers

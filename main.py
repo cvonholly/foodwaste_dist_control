@@ -12,7 +12,7 @@ from marks.foodwaste_matrices import *
 
 if __name__=="__main__":
     # load parameters
-    name = "EC_MPC"
+    name = "SCS"
     params = load_params(name)
     print(params)
     T = params["T"]  # food waste time horizon

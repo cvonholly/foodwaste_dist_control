@@ -3,8 +3,8 @@ import pandas as pd
 import cvxpy as cp
 import sys
 
-from node import Node
-import control.mpc
+from nodes.node import Node
+from nodes.control.mpc import MPC_C
 
 
 def get_A(thetas, gammas, dim):
@@ -159,7 +159,11 @@ class C(Node):
         self.x_hist.append(self.x)
         if k>0:
             if self.ec_mpc:  # compute optimal A, C if using MPC
-                self.A, self.C = mpc_C(self.B, self.x, self.food_intake, self.fw_matrix, inputs, self.mpc_h)
+                try:
+                    mpc = MPC_C(self.B, np.resize(self.x, self.n), self.food_intake, np.resize(self.fw_matrix, self.n), inputs, self.mpc_h)
+                    self.A, self.C = mpc.run()
+                except:
+                    self.get_A_C()
             else:
                 self.get_A_C()  # computes self.C, self.alphas, self.A
         if k==3:
@@ -194,7 +198,7 @@ if __name__=="__main__":
     
 
     # create MPC
-    mpc_C =  control.mpc.MPC_C(B, x0, food_intake, gammas, u, K, printme=True)
+    mpc_C =  MPC_C(B, x0, food_intake, gammas, u, K, printme=True)
     A, C = mpc_C.run()
 
     # Print the results
