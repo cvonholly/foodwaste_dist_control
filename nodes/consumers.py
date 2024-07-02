@@ -3,25 +3,13 @@ import pandas as pd
 import cvxpy as cp
 import sys
 
-from nodes.node import Node
+from node import Node
+import control.mpc
+
 
 def get_A(thetas, gammas, dim):
-    # print("thetas: ", thetas)
-    # print("gammas: ", gammas)
-    # C = np.vstack([
-    #     thetas,
-    #     gammas
-    # ])
-    # alphas = np.sum(C, axis=0)  # sum along columns
-    # alphas = np.array([thetas[i] + gammas[0, i] for i in range(dim)])
-    # print("alphas: ", alphas)
-    # A = np.eye(dim) - np.eye(dim) * alphas
-    # A = np.roll(A, 1, axis=0)
-    # idea: split up in 2 matrices
     Ag = np.eye(dim) - np.eye(dim) * gammas
     Ag = np.roll(Ag, 1, axis=0)
-    # Ag = - np.eye(dim) * gammas
-    # Ag = np.roll(Ag, 1, axis=0)
     At = cp.diag()
     return At, Ag
 
@@ -93,7 +81,6 @@ def mpc_C(B: np.ndarray,
         print("status:", problem.status)
         print("optimal value", problem.value)
         raise ValueError("MPC optimization problem did not solve!")
-
 
 
 class C(Node):
@@ -181,3 +168,35 @@ class C(Node):
         self.y = self.C @ self.x   # get output
         return self.y
         
+if __name__=="__main__":
+    """
+    only for testing
+    """
+    # prediction horizon
+    K = 4
+
+    # Initial state (x0) - Example with 2 states
+    x0 = np.array([1, 1, 1])
+
+    # Control input matrix (B) - Example with 2 states and 2 control inputs
+    B = np.array([1, 1])
+    B = np.vstack((B, np.array([[0, 0] for i in range(x0.size-1)]))) 
+
+    # Food intake required for every time step (food_intake)
+    food_intake = 0.1
+
+    # Food waste factors (gammas)
+    gammas = np.array([.1, .2, 1])
+
+    # Input flow (u) - Example with 2 control inputs
+    u = np.array([[1],
+                  [1]])
+    
+
+    # create MPC
+    mpc_C =  control.mpc.MPC_C(B, x0, food_intake, gammas, u, K, printme=True)
+    A, C = mpc_C.run()
+
+    # Print the results
+    print("A:", A)
+    print("C:", C)
