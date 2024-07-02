@@ -2,11 +2,11 @@ from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
 
-df = pd.read_csv('results/out.csv', index_col=0, header=[0,1])
+name = "SCS"
+
+df = pd.read_csv(f'results/{name}_out.csv', index_col=0, header=[0,1])
 df_raw = df
 
-
-# new
 
 app = Dash(__name__)
 
@@ -91,6 +91,12 @@ def update_figure(input_value):
     df_new['node'] = [c[0] for c in df_new.index]
     df_new.index = [' '.join(i).strip() for i in df_new.index]  # flatten multiindex
     df_new['names'] = df_new.index
+    # calculate total foodwaste
+    df_fw = df_new[df_new['type']=='foodwaste']
+    print("total foodwaste is ", df_fw['sum'].sum())
+    # calculate total self consumption
+    df_sc = df_new[df_new['type']=='self consumption']
+    print("total self consumption is ", df_sc['sum'].sum())
     fig = px.bar(df_new, x='type', y='sum', barmode='stack',
                  labels='names', text='names', color='node',
                  category_orders={'type': ['foodwaste', 'self consumption']})

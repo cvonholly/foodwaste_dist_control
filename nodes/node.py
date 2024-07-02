@@ -17,6 +17,7 @@ class Node:
         self.C = np.matrix([])
         self.D = np.matrix([])
         self.flow_nodes = list[str]   # output flow nodes
+        self.T = 3  # examnple state size
 
     def get_A(self):
         A = np.eye(self.T) - np.eye(self.T) * self.alphas

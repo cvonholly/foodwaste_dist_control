@@ -16,17 +16,20 @@ class Simulation:
     flows = n x n matrix with np.NaN 
     """
     def __init__(self, 
+                 name: str,
                  horizon: int,
                  state_size: int,
                  Ps: list[P], SCs: list[SC], Cs: list[C]):
         """
         inputs:
+            name: name of simulation, to be saved in /results
             horizon: simulation horizon
             state_size: size of state
             Ps: list of producers
             SCs: list of sharers
             Cs: list of consumers
         """
+        self.name = name
         self.horizon = horizon
         self.state_size = state_size
         self.Ps = Ps
@@ -67,10 +70,7 @@ class Simulation:
             self.flows_t.loc[N.name, N.flow_nodes[i]] = y_i  # update time dependent flow
             self.flows.loc[N.name, N.flow_nodes[i]] = y_i.sum()   # update final flow
             out.append(y_i.sum())
-        # out = self.flows.loc[N.name, :].values + out_last
         out = out + out_last
-        # print("out for %s at k=%s:"  % (N.name, k))
-        # print(out)
         self.out.loc[k, N.name] = out
 
     def get_out_df(self) -> pd.DataFrame:
@@ -120,7 +120,7 @@ class Simulation:
                 self.all_flows[k] = self.flows
 
         if store:
-            self.out.to_csv('results/out.csv')
-            self.all_flows.to_csv('results/flows.csv')
+            self.out.to_csv(f'results/{self.name}_out.csv')
+            self.all_flows.to_csv(f'results/{self.name}_flows.csv')
 
     
