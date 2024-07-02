@@ -2,55 +2,7 @@ import numpy as np
 import cvxpy as cp
 
 from nodes.node import Node
-
-
-def mpc_P(A: np.ndarray, 
-        B: np.ndarray,  
-        q: np.ndarray, 
-        x0: np.ndarray, 
-        food_input: float,
-        N: int) -> np.ndarray:
-    """
-    Model Predictive Control for producer
-
-    :param A: State transition matrix
-    :param B: Control input matrix
-    :param q: cost vector
-    :param x0: Initial state
-    :param N: Prediction horizon
-    :return: Optimal control input sequence
-    """
-    n = A.shape[1]  # Number of states
-    m = B.shape[1]  # Number of inputs
-
-    # Define variables
-    x = cp.Variable((n, N+1))
-    u = cp.Variable((m, N))
-
-    # Define the cost function & constraints
-    cost = 0
-    constraints = []
-
-    for k in range(N):
-        cost += q.T @ x[:, k]
-        constraints += [x[:, k+1] == A @ x[:, k] + B @ u[:, k]]
-
-    cost += q.T @ x[:, N] # terminal cost
-
-    constraints += [x[:, 0] == x0.flatten()]  # Initial condition
-
-    constraints += [cp.sum(u, axis=0) == food_input]  # food input condition
-
-    # Solve the optimization problem
-    problem = cp.Problem(cp.Minimize(cost), constraints)
-    problem.solve()
-
-    if problem.status == cp.OPTIMAL or problem.status == cp.OPTIMAL_INACCURATE:
-        return np.array([u[:, 0].value])  # adapting only for correct numpy format
-    else:
-        print("status:", problem.status)
-        print("optimal value", problem.value)
-        raise ValueError("MPC optimization problem did not solve!")
+import control.mpc
 
 
 class P(Node):
@@ -127,7 +79,7 @@ class P(Node):
             foodwaste: foodwaste at time step t
             input: input at t
         """
-        inp = mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h) if self.ec_mpc \
+        inp = control.mpc.mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h) if self.ec_mpc \
                 else self.food_input[k]  # c
         if self.ec_mpc:
             self.total_food_input = np.round(self.total_food_input - inp, 8)  # have to adapt to input
