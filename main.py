@@ -58,8 +58,7 @@ if __name__=="__main__":
            params["input_flows"],
            ec_mpc=params["ec_mpc"],
            q=p_fw_matrix.T,
-           mpc_h=params["mpc_h"]
-           ))    
+           mpc_h=params["mpc_h"]))    
     SCs = []
     for sc in SCs_names:
         SCs.append(SC(sc, T,
@@ -70,10 +69,13 @@ if __name__=="__main__":
     Cs = []
     for cc in Cs_names:
         Cs.append(C(cc, T,
-            c_sc_matrix,
+            # c_sc_matrix,
             c_fw_matrix,
             len(Ps)+len(SCs), 
-            params["x0"]))
+            params["x0"],
+            ec_mpc=params["ec_mpc_c"],
+            food_intake=params["food_intake"],
+            mpc_h=params["mpc_h_c"]))
     
     
     
