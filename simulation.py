@@ -118,6 +118,11 @@ class Simulation:
                 self.out.loc[k, c.name] = y.flatten()
             if store:
                 self.all_flows[k] = self.flows
+            # steady state for determining x0
+            # if k==self.horizon-1:
+            #     c = self.Cs[-1]
+            #     df = pd.DataFrame(c.x)
+            #     df.to_csv(f'results/{self.name}_final_consumer_state.csv', index=False, header=False)
 
         if store:
             self.out.to_csv(f'results/{self.name}_out.csv')

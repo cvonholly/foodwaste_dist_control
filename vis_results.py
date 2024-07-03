@@ -1,8 +1,7 @@
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
-
-name = "EC_MPC"
+from main import name
 
 df = pd.read_csv(f'results/{name}_out.csv', index_col=0, header=[0,1])
 df_raw = df
@@ -96,6 +95,7 @@ def update_figure(input_value):
     print("total foodwaste is ", df_fw['sum'].sum())
     # calculate total self consumption
     df_sc = df_new[df_new['type']=='self consumption']
+    df_new.fillna(0, inplace=True)
     print("total self consumption is ", df_sc['sum'].sum())
     fig = px.bar(df_new, x='type', y='sum', barmode='stack',
                  labels='names', text='names', color='node',

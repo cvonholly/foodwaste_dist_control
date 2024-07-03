@@ -41,7 +41,6 @@ class P(Node):
         self.y_names = ['flow %s' % (i) for i in flow_nodes] + ['foodwaste', 'input flow']
         self.x_hist = []  # previous x's
         self.food_input = food_input
-        self.alphas = np.ndarray
         self.C, self.C_bal = self.get_C()
         if (self.alphas > 1).any():
             raise Exception("aborting, alpha value is greater 0")
@@ -88,6 +87,7 @@ class P(Node):
         self.x_hist.append(self.x)
         self.x = self.A @ self.x + self.B @ inp  # time step
         self.y = self.C @ self.x   # get output
-        # self.print_all()  # for debugging
+        if k==10:
+            self.print_all()  # for debugging
         return self.y
             
