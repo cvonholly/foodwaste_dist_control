@@ -19,7 +19,8 @@ class Simulation:
                  name: str,
                  horizon: int,
                  state_size: int,
-                 Ps: list[P], SCs: list[SC], Cs: list[C]):
+                 Ps: list[P], SCs: list[SC], Cs: list[C],
+                 params: dict):
         """
         inputs:
             name: name of simulation, to be saved in /results
@@ -35,6 +36,7 @@ class Simulation:
         self.Ps = Ps
         self.SCs = SCs
         self.Cs = Cs
+        self.params = params
         self.nodes = Ps + SCs + Cs
         self.names = [n.name for n in self.nodes]
         self.n_nodes = len(self.nodes)
@@ -104,7 +106,8 @@ class Simulation:
             print("time step no. ", k)
             print("=================")
             for p in self.Ps:  # 1. simulate producers
-                y = p.sim_step(k, self.flows_t[p.name])
+                y = p.sim_step(k, self.flows_t[p.name]) if self.params['fb']=={} else \
+                    p.sim_step(k, self.flows_t[p.name], np.array([c.x.sum() - c.food_intake for c in self.Cs]))
                 self.update_flows(y, p, k)  
                     # updates summed and total flow
                     # and update output
@@ -127,5 +130,4 @@ class Simulation:
         if store:
             self.out.to_csv(f'results/{self.name}_out.csv')
             self.all_flows.to_csv(f'results/{self.name}_flows.csv')
-
     

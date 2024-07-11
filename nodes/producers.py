@@ -17,7 +17,8 @@ class P(Node):
                  food_input,
                  ec_mpc=False,
                  q=None,
-                 mpc_h=None) -> None:
+                 mpc_h=None,
+                 fb={}) -> None:
         """
         inputs: 
             name
@@ -28,6 +29,7 @@ class P(Node):
             x0: initial state (array of size T)
             food_input: (list) food_input at time step k
             ec_mpc: (bool) weather to determin input via MPC
+            fb: (dict) dict to use feedback
         """
         self.name = name
         self.T = T
@@ -51,6 +53,7 @@ class P(Node):
         self.total_food_input = np.sum(self.food_input)
         self.q = q
         self.mpc_h = mpc_h
+        self.fb = fb
     
     def get_B(self):
         """
@@ -68,18 +71,23 @@ class P(Node):
             final_row))
         return C, C_bal
 
-    def sim_step(self, k, flows):
+    def sim_step(self, k, flows, fb_input=np.array([])):
         """
         k: time step k
         flows: not used
+        fb_input: feedback input
 
         return: y (output consisting of)
             flows: np.array of output flows (n*T size)
             foodwaste: foodwaste at time step t
             input: input at t
         """
-        inp = mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h) if self.ec_mpc \
-                else self.food_input[k]  # c
+        if self.ec_mpc:
+            inp = mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h)
+        elif self.fb!={}:
+            inp = self.food_input[k] - self.fb['K'] * fb_input.sum()
+        else:
+            inp = self.food_input[k]  # c
         if self.ec_mpc:
             self.total_food_input = np.round(self.total_food_input - inp, 8)  # have to adapt to input
             print("with local economic mpc the input was found to be: ", inp)

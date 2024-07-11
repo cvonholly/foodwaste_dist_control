@@ -168,6 +168,7 @@ class C(Node):
                     mpc = MPC_C(self.B, np.resize(self.x, self.n), self.food_intake, np.resize(self.fw_matrix, self.n), inputs, self.mpc_h)
                     self.A, self.C = mpc.run()
                 except:
+                    print(f"{self.name}: MPC failed, using default A, C")
                     self.get_A_C()
             else:
                 self.get_A_C()  # computes self.C, self.alphas, self.A

@@ -10,7 +10,7 @@ from marks.flow_factors import flow_matrix_P_to_C, flow_matrix_P_to_SC, flow_mat
 from marks.foodwaste_matrices import *
 
 
-name = "SCS"  # global variable
+name = "EC_MPC"  # global variable
 
 
 if __name__=="__main__":
@@ -63,7 +63,8 @@ if __name__=="__main__":
            params["input_flows"],
            ec_mpc=params["ec_mpc"],
            q=p_fw_matrix.T,
-           mpc_h=params["mpc_h"]))    
+           mpc_h=params["mpc_h"],
+           fb=params["fb"]))    
     SCs = []
     for sc in SCs_names:
         SCs.append(SC(sc, T,
@@ -87,6 +88,7 @@ if __name__=="__main__":
     S = Simulation(name,
                     params["horizon"], 
                    T,
-                   Ps, SCs, Cs)
+                   Ps, SCs, Cs,
+                   params=params)
     S.simulate()
 
