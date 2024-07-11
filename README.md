@@ -9,16 +9,13 @@ pre:
 - packages: pandas, dash, plotly
 
 run:
+- `params\data.py` for specifing your parameters
 - `main.py` for running simulation
-- `visualize_results.py` for visualizing results
+- `vis_results.py` for visualizing results
+- `vis_network.py` for visualizing network (in dev)
 
-## To dev:
-- fix marks matrices
-- serialize adding new nodes
-- normalize certain matrices
-    - P flows matrix
-
-- flows have to be adapted
+## next dev's
+- create realistic model in params
 
 license: MIT
 
