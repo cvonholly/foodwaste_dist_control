@@ -146,11 +146,16 @@ class C(Node):
             print("consumer ", self.name, " need food intake ", self.food_intake, " but only has in stock ", current_food)
             print("x: ", self.x)
             raise Exception("aborting, not enough food")
-        gamma = (current_food - self.food_intake) / (self.n - 1)
+        # x = [.5, .25, .25, 0]
+        # cf=1
+        # fi=.9
+        # -> gamma = 1 - (cf - fi) / (n-1) = 1 - (1 - .9) / 3 = 1 - .033 = .967
+
+        gamma = self.food_intake / current_food
         self.sc_matrix = np.array([gamma for i in range(self.n)])
         self.sc_matrix[-1] = 0   # at final stage, everything goes to waste
         self.C = self.get_C()  # computes self.C, self.alphas
-        self.A = self.get_A()
+        self.A = self.get_A()  # update A based on self.alphas
 
     def sim_step(self, k, inputs: pd.DataFrame):
         inputs = inputs.fillna(0).to_numpy()  # inputs to numpy
@@ -163,6 +168,7 @@ class C(Node):
                     mpc = MPC_C(self.B, np.resize(self.x, self.n), self.food_intake, np.resize(self.fw_matrix, self.n), inputs, self.mpc_h)
                     self.A, self.C = mpc.run()
                 except:
+                    print(f"{self.name}: MPC failed, using default A, C")
                     self.get_A_C()
             else:
                 self.get_A_C()  # computes self.C, self.alphas, self.A

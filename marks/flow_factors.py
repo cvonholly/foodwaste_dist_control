@@ -1,15 +1,16 @@
 import numpy as np
 
         
-def flow_matrix_P_to_C(T,food_waste):
-        
-        alpha = -T/(np.log(food_waste))
-        matrix_factors = 1 - (np.exp(-1/alpha))
-        flow_matrix = np.zeros((T,T))
-
-        for i in range(T-1):
-            flow_matrix[i,i] = matrix_factors
-
+def flow_matrix_P_to_C(T, params):
+    """
+    returns factor matrix for flow from 1 producer to 1 consumer
+    simple model:
+        - nothing stored, everything outflow
+        - food waste at final stage
+    """
+    if params['fw_model']['type']=='simple':
+        flow_matrix = np.eye(T) * (1-params['fw_model']['store'])
+        flow_matrix[-1, -1] = 0  # at final stage, everything goes to waste
         return flow_matrix
         
 

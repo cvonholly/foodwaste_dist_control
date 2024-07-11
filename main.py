@@ -10,9 +10,11 @@ from marks.flow_factors import flow_matrix_P_to_C, flow_matrix_P_to_SC, flow_mat
 from marks.foodwaste_matrices import *
 
 
+name = "EC_MPC"  # global variable
+
+
 if __name__=="__main__":
     # load parameters
-    name = "EC_MPC"
     params = load_params(name)
     print(params)
     T = params["T"]  # food waste time horizon
@@ -24,7 +26,7 @@ if __name__=="__main__":
     SCs_names  = params["SCs_names"]
 
     # flow matrices
-    matrix_P_to_C = flow_matrix_P_to_C(T, params["food_waste"])
+    matrix_P_to_C = flow_matrix_P_to_C(T, params)
     matrix_P_to_SC = flow_matrix_P_to_SC(T, params["T_start"], params["T_end"], 
                                          params["alpha_start"], params["alpha_end"])
     matrix_SC_to_C = flow_matrix_SC_to_C(T, params["T_start"], params["T_end"], 
@@ -41,6 +43,9 @@ if __name__=="__main__":
                              np.vstack([matrix_P_to_SC for i in range(len(SCs_names))]) / n_scs,
                             ])
     
+
+    print(matrix_P_to_C)
+    
     # compute sc out flows
     sc_out_flows = np.vstack([matrix_SC_to_C for i in range(len(Cs_names))]) / n_cs    
 
@@ -54,11 +59,12 @@ if __name__=="__main__":
            p_out_flows,
            p_fw_matrix,
            Cs_names + SCs_names,  # output flow nodes
-           params["x0"], 
+           params["x0_p"], 
            params["input_flows"],
            ec_mpc=params["ec_mpc"],
            q=p_fw_matrix.T,
-           mpc_h=params["mpc_h"]))    
+           mpc_h=params["mpc_h"],
+           fb=params["fb"]))    
     SCs = []
     for sc in SCs_names:
         SCs.append(SC(sc, T,
@@ -72,7 +78,7 @@ if __name__=="__main__":
             # c_sc_matrix,
             c_fw_matrix,
             len(Ps)+len(SCs), 
-            params["x0"],
+            params["x0_c"],
             ec_mpc=params["ec_mpc_c"],
             food_intake=params["food_intake"],
             mpc_h=params["mpc_h_c"]))
@@ -82,6 +88,7 @@ if __name__=="__main__":
     S = Simulation(name,
                     params["horizon"], 
                    T,
-                   Ps, SCs, Cs)
+                   Ps, SCs, Cs,
+                   params=params)
     S.simulate()
 

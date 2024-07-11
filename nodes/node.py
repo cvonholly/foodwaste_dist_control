@@ -11,7 +11,7 @@ class Node:
         self.x_hist = []
         self.y = np.array([])  # output
         self.y_names = []   # output names
-        self.alphas = np.ndarray   # alphas for A matrix
+        self.alphas = np.array([])   # alphas for A matrix
         self.A = np.matrix([])
         self.B = np.matrix([])
         self.C = np.matrix([])
