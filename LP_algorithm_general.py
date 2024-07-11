@@ -2,18 +2,36 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 
+from params.params import load_params
 
-n_ps = 1 # number of producers
-n_cs = 1 # number of consumers
-n_scs = 1 # number of social-charities
-T = 5 # numbers of time steps / states
-horizon = 3 # numbers of simulation steps
-T_start_sc = 2 # defines state where social charities start to receive food from producers
-source_output = 6 # p["input_flows"].sum() (=demand of source node)
-daily_food_intake = 3 # p["food_intake"] (=capacity of edge from consumption node to sink!)
-x0_p = np.ones((T, 1)) # initial state of producer
-x0_c = np.ones((T, 1)) # initial state of consumer
-x0_sc = np.zeros((T, 1)) # initial state of social charitie (do we actually need this???)
+if __name__=="__main__":
+    # load parameters
+    name = "SCS"
+    params = load_params(name)
+    n_ps = params["n_ps"] # number of producers
+    n_cs = params["n_cs"] # number of consumers
+    n_scs = params["n_scs"] # number of social-charities
+    T = params["T"] # numbers of time steps / states
+    horizon = params["horizon"] # numbers of simulation steps
+    T_start_sc = 2 # defines state where social charities start to receive food from producers
+    source_output = np.sum(params["input_flows"]) # p["input_flows"].sum() (=demand of source node)
+    daily_food_intake = params["food_intake"] # p["food_intake"] (=capacity of edge from consumption node to sink!)
+    x0_p = params["x0_p"] # initial state of producer
+    x0_c = params["x0_c"] # initial state of consumer
+    x0_sc = params["x0"] # initial state of social charitie (do we actually need this???)
+
+
+# n_ps = 1 # number of producers
+# n_cs = 1 # number of consumers
+# n_scs = 1 # number of social-charities
+# T = 5 # numbers of time steps / states
+# horizon = 3 # numbers of simulation steps
+# T_start_sc = 2 # defines state where social charities start to receive food from producers
+# source_output = 6 # p["input_flows"].sum() (=demand of source node)
+# daily_food_intake = 3 # p["food_intake"] (=capacity of edge from consumption node to sink!)
+# x0_p = np.ones((T, 1)) # initial state of producer
+# x0_c = np.ones((T, 1)) # initial state of consumer
+# x0_sc = np.zeros((T, 1)) # initial state of social charitie (do we actually need this???)
 
 
 
@@ -34,11 +52,6 @@ notes:
 - capacities: set high enough to allow for all possible flows
 - weights: set 0 for non-foodwaste, set 1 for foodwaste
 - demand: set food_intake for consumers for every time step
-
-if __name__=="__main__":
-    load parameters
-    name = "SCS"
-    params = load_params(name)
 """
 
 # CREATE DIRECTED GRAPH
