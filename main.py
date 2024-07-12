@@ -10,7 +10,8 @@ from marks.flow_factors import flow_matrix_P_to_C, flow_matrix_P_to_SC, flow_mat
 from marks.foodwaste_matrices import *
 
 
-name = "EC_MPC"  # global variable
+# options: SCS, EC_MPC, FB1
+name = "SCS"  # global variable
 
 
 if __name__=="__main__":
