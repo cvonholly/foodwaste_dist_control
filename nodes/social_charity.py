@@ -82,6 +82,5 @@ class SC(Node):
         inputs = np.resize(inputs, (self.B.shape[1], 1))
         self.x_hist.append(self.x)
         self.x = self.A @ self.x + self.B @ inputs  # time step
-        self.y = self.C @ self.x   # get output
-        # self.print_all()
+        self.y = self.C @ self.x   # get 
         return self.y

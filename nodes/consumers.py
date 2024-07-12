@@ -172,8 +172,6 @@ class C(Node):
                     self.get_A_C()
             else:
                 self.get_A_C()  # computes self.C, self.alphas, self.A
-        if k==3:
-            self.print_all()
         self.x = self.A @ self.x + self.B @ inputs  # time step
         self.y = self.C @ self.x   # get output
         return self.y

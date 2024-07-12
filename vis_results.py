@@ -118,6 +118,7 @@ def update_figure(input_value):
     sc_sum = np.round(df_sc['sum'].sum(),1)
     print("total self consumption is ", df_sc['sum'].sum())
     df_new.rename(columns={'sum': yaxis_name}, inplace=True)
+    df_new.fillna(0, inplace=True)
     fig = px.bar(df_new, x='type', y=yaxis_name, barmode='stack',
                  labels='names', text='names', color='node',
                  category_orders={'type': ['foodwaste', 'self consumption']})
