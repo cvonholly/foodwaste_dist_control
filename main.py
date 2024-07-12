@@ -11,7 +11,7 @@ from marks.foodwaste_matrices import *
 
 
 # options: SCS, EC_MPC, FB1
-name = "SCS"  # global variable
+name = "FB1"  # global variable
 
 
 if __name__=="__main__":

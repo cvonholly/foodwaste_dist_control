@@ -6,7 +6,7 @@ Our idea is to model the system as a distributed network with inflows and outflo
 
 pre:
 - Python
-- packages: pandas, dash, plotly
+- requirements: see requirements.txt (I only needed to install numpy, plotly, pandas, cvxpy)
 
 run:
 - `params\data.py` for specifing your parameters

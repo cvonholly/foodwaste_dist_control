@@ -86,6 +86,8 @@ class P(Node):
             inp = mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h)
         elif self.fb!={}:
             inp = self.food_input[k] - self.fb['K'] * fb_input.sum()
+            if inp[0]<0:
+                inp[0] = 0  # input cannot be smaller than 0 !
         else:
             inp = self.food_input[k]  # c
         if self.ec_mpc:
@@ -95,7 +97,5 @@ class P(Node):
         self.x_hist.append(self.x)
         self.x = self.A @ self.x + self.B @ inp  # time step
         self.y = self.C @ self.x   # get output
-        if k==10:
-            self.print_all()  # for debugging
         return self.y
             
