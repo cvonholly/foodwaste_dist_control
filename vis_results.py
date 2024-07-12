@@ -1,10 +1,15 @@
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
+import numpy as np
+
 from main import name
 
 df = pd.read_csv(f'results/{name}_out.csv', index_col=0, header=[0,1])
 df_raw = df
+
+yaxis_name = 'MCal food'
 
 
 app = Dash(__name__)
@@ -32,7 +37,15 @@ def update_figure(input_value):
         dff.columns = [' '.join(col).strip() for col in df.columns.values]  # flatten multiindex
     else:
         dff = df[input_value].copy()
-    fig = px.line(dff)
+    fig = px.line(dff,
+                  labels={
+                     "index": "time step (days)",
+                     "value": "MCal food",
+                 },)
+    fig.update_layout(
+        title=dict(text=f"time plot of variables", 
+                   font=dict(size=22), automargin=True, yref='paper')
+    )
     return fig
 
 @app.callback(
@@ -56,15 +69,20 @@ def update_figure(input_value):
     df_new['node'] = [c[0] for c in df_new.index]
     df_new.index = [' '.join(i).strip() for i in df_new.index]  # flatten multiindex
     df_new['names'] = df_new.index
+    df_new.rename(columns={'sum': yaxis_name}, inplace=True)
     try:
-        fig = px.bar(df_new, x='type', y='sum', barmode='stack',
+        fig = px.bar(df_new, x='type', y=yaxis_name, barmode='stack',
                     labels='names', text='names', color='node',
                     category_orders={'type': ['inputs', 'flows', 'outputs']})
     except:
-        fig = px.bar(df_new, x='type', y='sum', barmode='stack',
+        fig = px.bar(df_new, x='type', y=yaxis_name, barmode='stack',
                  labels='names', text='names', color='node',
                  category_orders={'type': ['inputs', 'flows', 'outputs']})
     fig.update_xaxes(type='category')
+    fig.update_layout(
+        title=dict(text=f"distribution of input, flows and outputs", 
+                   font=dict(size=22), automargin=True, yref='paper')
+    )
     return fig
 
 @app.callback(
@@ -92,15 +110,22 @@ def update_figure(input_value):
     df_new['names'] = df_new.index
     # calculate total foodwaste
     df_fw = df_new[df_new['type']=='foodwaste']
+    fw_sum = np.round(df_fw['sum'].sum(),1)
     print("total foodwaste is ", df_fw['sum'].sum())
     # calculate total self consumption
     df_sc = df_new[df_new['type']=='self consumption']
     df_new.fillna(0, inplace=True)
+    sc_sum = np.round(df_sc['sum'].sum(),1)
     print("total self consumption is ", df_sc['sum'].sum())
-    fig = px.bar(df_new, x='type', y='sum', barmode='stack',
+    df_new.rename(columns={'sum': yaxis_name}, inplace=True)
+    fig = px.bar(df_new, x='type', y=yaxis_name, barmode='stack',
                  labels='names', text='names', color='node',
                  category_orders={'type': ['foodwaste', 'self consumption']})
     fig.update_xaxes(type='category')
+    fig.update_layout(
+        title=dict(text=f"summed foodwaste: {fw_sum} MCal                         self-consumption: {sc_sum} MCal", 
+                   font=dict(size=22), automargin=True, yref='paper')
+    )
     return fig
 
 
