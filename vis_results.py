@@ -4,9 +4,11 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
-from main import name
+from main import name, p_name
 
-df = pd.read_csv(f'results/{name}_out.csv', index_col=0, header=[0,1])
+print(f"loading results/{p_name}_{name}_out.csv")
+
+df = pd.read_csv(f'results/{p_name}_{name}_out.csv', index_col=0, header=[0,1])
 df_raw = df
 
 yaxis_name = 'MCal food'

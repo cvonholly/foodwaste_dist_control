@@ -93,7 +93,8 @@ class C(Node):
                  x0: np.ndarray,
                  ec_mpc=False,
                  food_intake=0.0,
-                 mpc_h=5) -> None:
+                 mpc_h=5,
+                 greedy=False) -> None:
         """
         inputs (see above)
         """
@@ -117,8 +118,9 @@ class C(Node):
         self.ec_mpc = ec_mpc  # bool weather to use economic mpc
         self.food_intake = food_intake  # daily food intake required
         self.mpc_h = mpc_h
+        self.greedy = greedy  # bool weather to use greedy approach
     
-    def get_B(self, inputs: np.array):
+    def get_B(self, inputs: np.ndarray):
         """
         inputs: input flows
             rows: nodes (n)
@@ -157,6 +159,31 @@ class C(Node):
         self.C = self.get_C()  # computes self.C, self.alphas
         self.A = self.get_A()  # update A based on self.alphas
 
+    def get_A_C_greedy(self):
+        """
+        computes A, C based on greedy approach
+        """
+        current_food, fi = self.x[:-1].sum(), self.food_intake  # exclude final stage as this goes to waste
+        if current_food < self.food_intake:
+            print("ABORTING")
+            print("consumer ", self.name, " need food intake ", self.food_intake, " but only has in stock ", current_food)
+            print("x: ", self.x)
+            raise Exception("aborting, not enough food")
+        gammas = np.zeros(self.n)
+        i = self.n - 1 - 1  # exclude final stage, index starts at 0
+        while fi > 0:
+            if fi >= self.x[i]:  # consume all food of this stage
+                gammas[i] = 1
+            else:  # consume only part of food of this stage
+                gammas[i] = fi / self.x[i]
+            fi -= self.x[i]
+            i = i - 1
+        self.sc_matrix = gammas  # gammas are computed, set to sc_matrix
+        self.C = self.get_C()  # computes self.C, self.alphas
+        self.A = self.get_A()  # update A based on self.alphas
+        
+        
+
     def sim_step(self, k, inputs: pd.DataFrame):
         inputs = inputs.fillna(0).to_numpy()  # inputs to numpy
         if self.B is None: self.B = self.get_B(inputs)  # computes B at first time step
@@ -170,8 +197,10 @@ class C(Node):
                 except:
                     print(f"{self.name}: MPC failed, using default A, C")
                     self.get_A_C()
+            elif self.greedy:  # compute A, C based on greedy approach
+                self.get_A_C_greedy()
             else:
-                self.get_A_C()  # computes self.C, self.alphas, self.A
+                self.get_A_C()  #    self.C, self.alphas, self.A
         self.x = self.A @ self.x + self.B @ inputs  # time step
         self.y = self.C @ self.x   # get output
         return self.y
