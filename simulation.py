@@ -128,6 +128,7 @@ class Simulation:
             #     df.to_csv(f'results/{self.name}_final_consumer_state.csv', index=False, header=False)
 
         if store:
-            self.out.to_csv(f'results/{self.name}_out.csv')
-            self.all_flows.to_csv(f'results/{self.name}_flows.csv')
+            sim_name = self.params['name']
+            self.out.to_csv(f'results/{sim_name}_{self.name}_out.csv')
+            self.all_flows.to_csv(f'results/{sim_name}_{self.name}_flows.csv')
     

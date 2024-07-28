@@ -18,7 +18,7 @@ class P(Node):
                  ec_mpc=False,
                  q=None,
                  mpc_h=None,
-                 fb={}) -> None:
+                 fb={}):
         """
         inputs: 
             name
@@ -82,9 +82,9 @@ class P(Node):
             foodwaste: foodwaste at time step t
             input: input at t
         """
-        if self.ec_mpc:
+        if self.ec_mpc:  # MPC
             inp = mpc_P(self.A, self.B, self.q, self.x, self.total_food_input, self.mpc_h)
-        elif self.fb!={}:
+        elif self.fb!={}:  # p-feedback
             inp = self.food_input[k] - self.fb['K'] * fb_input.sum()
             if inp[0]<0:
                 inp[0] = 0  # input cannot be smaller than 0 !

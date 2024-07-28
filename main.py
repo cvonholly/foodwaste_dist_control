@@ -11,7 +11,8 @@ from marks.foodwaste_matrices import *
 
 
 # options: SCS, EC_MPC, FB1
-name = "FB1"  # global variable
+name = "greedy"  # global variable
+p_name = load_params(name)["name"]  # params name
 
 
 if __name__=="__main__":
@@ -82,7 +83,8 @@ if __name__=="__main__":
             params["x0_c"],
             ec_mpc=params["ec_mpc_c"],
             food_intake=params["food_intake"],
-            mpc_h=params["mpc_h_c"]))
+            mpc_h=params["mpc_h_c"],
+            greedy=params["greedy"]))
     
     
     
